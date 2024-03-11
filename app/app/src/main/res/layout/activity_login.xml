@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity"
+    android:background="@drawable/back">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageView
+        android:id="@+id/coinground"
+        android:layout_width="232dp"
+        android:layout_height="210dp"
+        android:background="@drawable/iconcoin"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.121" />
+
+    <!-- Welcome to TextView -->
+    <TextView
+        android:id="@+id/welcomeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@id/coinground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Lion Domination TextView -->
+    <TextView
+        android:id="@+id/lionDominationTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lion Domination"
+        android:textSize="27sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/coinground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="0dp"/>
+
+    <!-- Learn to Earn TextView -->
+    <TextView
+        android:id="@+id/learnToEarnTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Learn to Earn"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/lionDominationTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="5dp"/>
+
+    <!-- Username TextInputLayout -->
+
+    <TextView
+        android:id="@+id/usernameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Username"
+        android:textColor="#FFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.080"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/learnToEarnTextView" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/usernameTextInputLayout"
+        android:layout_width="390dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/usernameLabel">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_username"
+            android:layout_width="390dp"
+            android:layout_height="60dp"
+            android:background="@drawable/box1"
+            android:padding="12dp"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Password Label TextView -->
+    <TextView
+        android:id="@+id/passwordLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Password"
+        android:textColor="#FFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.080"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/usernameTextInputLayout" />
+
+    <!-- Password TextInputLayout -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordTextInputLayout"
+        android:layout_width="390dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/passwordLabel">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_password"
+            android:layout_width="390dp"
+            android:layout_height="60dp"
+            android:background="@drawable/box1"
+            android:inputType="textPassword"
+            android:padding="12dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <CheckBox
+        android:id="@+id/rememberMeCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp"
+        android:alpha="0.7"
+        android:text="Remember me"
+        android:textColor="#FFFFFF"
+        android:buttonTint="@color/checkbox_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/passwordTextInputLayout" />
+
+    <TextView
+        android:id="@+id/forgotPasswordTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="110dp"
+        android:layout_marginTop="20dp"
+        android:text="Forgot password?"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/rememberMeCheckBox"
+        app:layout_constraintTop_toBottomOf="@+id/passwordTextInputLayout" />
+
+    <Button
+        android:id="@+id/button_login"
+        android:layout_width="150dp"
+        android:layout_height="55dp"
+        android:background="@drawable/box2"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/passwordTextInputLayout"
+        android:layout_marginTop="70dp" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

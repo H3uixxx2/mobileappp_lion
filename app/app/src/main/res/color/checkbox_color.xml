@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi CheckBox được chọn -->
+    <item android:color="#FFFFFF" android:state_checked="true"/>
+    <!-- Màu mặc định khi CheckBox không được chọn -->
+    <item android:color="#787878"/> <!-- Thay đổi màu này theo ý bạn -->
+</selector>
