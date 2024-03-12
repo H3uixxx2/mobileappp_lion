@@ -39,7 +39,7 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Nhận email từ Intent
+        // Nhận email từ Intent và thực hiện truy vấn dữ liệu
         intent.getStringExtra("USER_EMAIL")?.let {
             fetchStudentData(it)
         }
@@ -76,15 +76,14 @@ class HomeActivity : AppCompatActivity() {
                 val enrolledCourses = studentDocument?.getList("enrolledCourses", ObjectId::class.java)
                 if (enrolledCourses != null) {
                     fetchCoursesData(enrolledCourses)
+                    // Thay đổi ở đây: Gọi fetchCoursesAndSlots thay vì fetchSlotsData
+                    fetchCoursesAndSlots(enrolledCourses)
                 }
-
-                fetchSlotsData(enrolledCourses ?: emptyList())
             } else {
                 Log.e("HomeActivity", "Error fetching student data: ${task.error}")
             }
         }
     }
-
 
     private fun fetchDepartmentData(departmentId: ObjectId) {
         val mongoClient = app.currentUser()!!.getMongoClient("mongodb-atlas")
@@ -169,31 +168,47 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchSlotsData(courseIds: List<ObjectId>) {
-        if (courseIds.isEmpty()) return
-
+    private fun fetchCoursesAndSlots(courseIds: List<ObjectId>) {
         val mongoClient = app.currentUser()?.getMongoClient("mongodb-atlas")
         val database = mongoClient?.getDatabase("finalProject")
-        database?.getCollection("Slots")?.find(Document("courseId", Document("\$in", courseIds)))?.iterator()?.getAsync { task ->
-            if (task.isSuccess) {
-                val results = task.get()
-                val slotsList = mutableListOf<SlotInfo>()
+        val coursesCollection = database?.getCollection("Courses")
+        val slotsCollection = database?.getCollection("Slots")
+        val courseTitlesMap = mutableMapOf<String, String>()
 
-                // Assuming `results` is iterable
-                results.forEach { doc ->
-                    val startTime = doc.getString("startTime")
-                    val endTime = doc.getString("endTime")
-                    val day = doc.getString("day")
-                    val courseId = doc.getObjectId("courseId").toString()
-                    val courseTitle = doc.getString("courseTitle") ?: "Unknown Course"
-
-                    slotsList.add(SlotInfo(startTime, endTime, day, courseId, courseTitle))
+        // Lấy thông tin từ Courses
+        coursesCollection?.find(Document("_id", Document("\$in", courseIds)))?.iterator()?.getAsync { coursesTask ->
+            if (coursesTask.isSuccess) {
+                val courses = coursesTask.get()
+                courses.forEach { course ->
+                    val courseId = course.getObjectId("_id").toString()
+                    val courseTitle = course.getString("title")
+                    courseTitlesMap[courseId] = courseTitle ?: "Unknown Course"
                 }
 
-                slotsData = slotsList // Directly assigning the MutableList to slotsData
-                sendSlotsDataToInterfaceFragment()
+                // Khi có tất cả titles, lấy thông tin từ Slots và ghép nối
+                slotsCollection?.find(Document("courseId", Document("\$in", courseIds)))?.iterator()?.getAsync { slotsTask ->
+                    if (slotsTask.isSuccess) {
+                        val slots = slotsTask.get()
+                        val slotsList = mutableListOf<SlotInfo>()
+
+                        slots.forEach { slot ->
+                            val startTime = slot.getString("startTime")
+                            val endTime = slot.getString("endTime")
+                            val day = slot.getString("day")
+                            val courseId = slot.getObjectId("courseId").toString()
+                            val courseTitle = courseTitlesMap[courseId] ?: "Unknown Course"
+
+                            slotsList.add(SlotInfo(startTime, endTime, day, courseId, courseTitle))
+                        }
+
+                        slotsData = slotsList
+                        sendSlotsDataToInterfaceFragment()
+                    } else {
+                        Log.e("HomeActivity", "Error fetching slots data: ${slotsTask.error}")
+                    }
+                }
             } else {
-                Log.e("HomeActivity", "Error fetching slots data: ${task.error}")
+                Log.e("HomeActivity", "Error fetching courses data: ${coursesTask.error}")
             }
         }
     }
