@@ -175,34 +175,38 @@ class HomeActivity : AppCompatActivity() {
         val slotsCollection = database?.getCollection("Slots")
         val courseTitlesMap = mutableMapOf<String, String>()
 
-        // Lấy thông tin từ Courses
         coursesCollection?.find(Document("_id", Document("\$in", courseIds)))?.iterator()?.getAsync { coursesTask ->
             if (coursesTask.isSuccess) {
                 val courses = coursesTask.get()
                 courses.forEach { course ->
                     val courseId = course.getObjectId("_id").toString()
                     val courseTitle = course.getString("title")
-                    courseTitlesMap[courseId] = courseTitle ?: "Unknown Course"
+                    courseTitlesMap[courseId] = courseTitle
                 }
 
-                // Khi có tất cả titles, lấy thông tin từ Slots và ghép nối
                 slotsCollection?.find(Document("courseId", Document("\$in", courseIds)))?.iterator()?.getAsync { slotsTask ->
                     if (slotsTask.isSuccess) {
-                        val slots = slotsTask.get()
-                        val slotsList = mutableListOf<SlotInfo>()
+                        val slots = slotsTask.get().asSequence().map { slot ->
+                            Log.d("Debug", "Processing slot with ID: ${slot.getObjectId("_id")}")
+                            SlotInfo(
+                                slotId = slot.getObjectId("_id").toString(), // Lấy ID của Slot từ document.
+                                startTime = slot.getString("startTime"),
+                                endTime = slot.getString("endTime"),
+                                day = slot.getString("day"),
+                                courseId = slot.getObjectId("courseId").toString(),
+                                courseTitle = courseTitlesMap[slot.getObjectId("courseId").toString()] ?: "Unknown",
+                                building = null // Ban đầu chưa có thông tin building
 
-                        slots.forEach { slot ->
-                            val startTime = slot.getString("startTime")
-                            val endTime = slot.getString("endTime")
-                            val day = slot.getString("day")
-                            val courseId = slot.getObjectId("courseId").toString()
-                            val courseTitle = courseTitlesMap[courseId] ?: "Unknown Course"
+                            )
+                        }.toList()
 
-                            slotsList.add(SlotInfo(startTime, endTime, day, courseId, courseTitle))
+                        // Sau khi có slots, tiếp tục lấy thông tin building
+                        fetchBuildingForSlots(slots) { updatedSlots ->
+                            slotsData = updatedSlots
+                            runOnUiThread {
+                                sendSlotsDataToInterfaceFragment()
+                            }
                         }
-
-                        slotsData = slotsList
-                        sendSlotsDataToInterfaceFragment()
                     } else {
                         Log.e("HomeActivity", "Error fetching slots data: ${slotsTask.error}")
                     }
@@ -213,18 +217,50 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendSlotsDataToInterfaceFragment() {
-        // Update InterfaceFragment with slots data if available
-        slotsData?.let {
-            val interfaceFragment = InterfaceFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable("slotsData", ArrayList(it))
+
+    private fun fetchBuildingForSlots(slots: List<SlotInfo>, completion: (List<SlotInfo>) -> Unit) {
+        val mongoClient = app.currentUser()?.getMongoClient("mongodb-atlas")
+        val database = mongoClient?.getDatabase("finalProject")
+        val roomsCollection = database?.getCollection("Rooms")
+
+        val updatedSlots = mutableListOf<SlotInfo>()
+        var callbackCount = 0
+
+        slots.forEach { slot ->
+            Log.d("Debug", "Fetching building for SlotID: ${slot.courseId}") // Log Slot ID being queried
+            val query = Document("availability.slotId", Document("\$oid", slot.slotId))
+            Log.d("Debug", "Query for building: $query") // Log the query
+
+            roomsCollection?.findOne(query)?.getAsync { task ->
+                if (task.isSuccess) {
+                    val roomDocument = task.get()
+                    val building = roomDocument?.getString("building") ?: "Unknown"
+                    Log.d("Debug", "Building found: $building for SlotID: ${slot.courseId}") // Log the building found
+                    updatedSlots.add(slot.copy(building = building))
+                } else {
+                    Log.e("Debug", "Error fetching room data: ${task.error}")
+                    updatedSlots.add(slot)
+                }
+                callbackCount++
+                if (callbackCount == slots.size) {
+                    completion(updatedSlots)
                 }
             }
-            replaceFragment(interfaceFragment)
         }
     }
 
+    private fun sendSlotsDataToInterfaceFragment() {
+        slotsData?.forEach { slot ->
+            Log.d("Debug", "Slot with building: ${slot.building}")
+        }
+        // Đảm bảo rằng InterfaceFragment được cập nhật với danh sách slots mới
+        val interfaceFragment = InterfaceFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable("slotsData", ArrayList(slotsData))
+            }
+        }
+        replaceFragment(interfaceFragment)
+    }
 
     private fun replaceFragment(fragment: Fragment) {
         // Kiểm tra và cập nhật dữ liệu cho InterfaceFragment hoặc InforFragment nếu cần
@@ -247,5 +283,4 @@ class HomeActivity : AppCompatActivity() {
             commit()
         }
     }
-
 }

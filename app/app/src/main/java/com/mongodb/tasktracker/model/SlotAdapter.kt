@@ -10,11 +10,19 @@ import com.mongodb.tasktracker.R
 class SlotAdapter(private var slots: List<SlotInfo>) : RecyclerView.Adapter<SlotAdapter.SlotViewHolder>() {
 
     class SlotViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titleTextView: TextView = view.findViewById(R.id.sbname_data)
-        val dayTextView: TextView = view.findViewById(R.id.day_data)
-        val startTextView: TextView = view.findViewById(R.id.start_data)
-        val endTextView: TextView = view.findViewById(R.id.end_data)
-        // Các thành phần khác của item_attendance.xml
+        private val titleTextView: TextView = view.findViewById(R.id.sbname_data)
+        private val dayTextView: TextView = view.findViewById(R.id.day_data)
+        private val startTextView: TextView = view.findViewById(R.id.start_data)
+        private val endTextView: TextView = view.findViewById(R.id.end_data)
+        private val buildingTextView: TextView = view.findViewById(R.id.building_data) // TextView cho thông tin tòa nhà
+
+        fun bind(slot: SlotInfo) {
+            titleTextView.text = slot.courseTitle
+            dayTextView.text = slot.day
+            startTextView.text = slot.startTime
+            endTextView.text = slot.endTime
+            buildingTextView.text = slot.building // Hiển thị thông tin tòa nhà
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlotViewHolder {
@@ -24,17 +32,13 @@ class SlotAdapter(private var slots: List<SlotInfo>) : RecyclerView.Adapter<Slot
 
     override fun onBindViewHolder(holder: SlotViewHolder, position: Int) {
         val slot = slots[position]
-        holder.titleTextView.text = slot.courseTitle
-        holder.dayTextView.text = slot.day
-        holder.startTextView.text = slot.startTime
-        holder.endTextView.text = slot.endTime
-        // Bind các dữ liệu khác vào view
+        holder.bind(slot) // Gọi phương thức bind để cập nhật dữ liệu vào view
     }
 
-    override fun getItemCount() = slots.size
+    override fun getItemCount(): Int = slots.size
 
     fun updateSlots(newSlots: List<SlotInfo>) {
         slots = newSlots
-        notifyDataSetChanged()
+        notifyDataSetChanged() // Cập nhật dữ liệu và làm mới RecyclerView
     }
 }

@@ -16,14 +16,11 @@ class InterfaceFragment : Fragment() {
     private lateinit var slotAdapter: SlotAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_interface, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Khởi tạo RecyclerView và SlotAdapter
         recyclerView = view.findViewById(R.id.my_recycler_view1)
         recyclerView.layoutManager = LinearLayoutManager(context)
         slotAdapter = SlotAdapter(emptyList())
